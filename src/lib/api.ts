@@ -2,7 +2,11 @@
 // Replaces the former Supabase browser client. All data access goes through
 // the backend at VITE_API_URL (defaults to "/api", proxied to the server in dev).
 
-const API_BASE = import.meta.env.VITE_API_URL || '/api';
+// Resolve the API base. VITE_API_URL may be the backend origin
+// (e.g. https://capitalist-cartel.onrender.com) or already include "/api".
+// When unset (local dev), fall back to "/api" which Vite proxies to the backend.
+const RAW_API_URL = (import.meta.env.VITE_API_URL || '').replace(/\/+$/, '');
+const API_BASE = RAW_API_URL ? (RAW_API_URL.endsWith('/api') ? RAW_API_URL : `${RAW_API_URL}/api`) : '/api';
 const TOKEN_KEY = 'crm_token';
 
 export function getToken(): string | null {
