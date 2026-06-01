@@ -15,7 +15,9 @@ import adminRoutes from './routes/admin.js';
 
 const app = express();
 
-app.use(cors());
+// Allow all origins by default. Set CLIENT_ORIGIN (e.g. https://your-app.vercel.app)
+// in production to restrict the API to your deployed frontend.
+app.use(cors(process.env.CLIENT_ORIGIN ? { origin: process.env.CLIENT_ORIGIN } : undefined));
 app.use(express.json());
 
 app.get('/api/health', (_req, res) => res.json({ ok: true }));

@@ -3,12 +3,17 @@
   "private": true,
   "version": "1.0.0",
   "type": "module",
+  "engines": {
+    "node": ">=20.6.0"
+  },
   "scripts": {
     "dev": "concurrently -k -n SERVER,CLIENT -c blue,green \"npm:dev:server\" \"npm:dev:client\"",
     "dev:server": "node --watch --env-file=server/.env server/index.js",
     "dev:client": "vite",
-    "start": "node --env-file=server/.env server/index.js",
+    "start": "node server/index.js",
+    "start:local": "node --env-file=server/.env server/index.js",
     "seed": "node --env-file=server/.env server/seed.js",
+    "seed:prod": "node server/seed.js",
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",

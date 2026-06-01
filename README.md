@@ -104,9 +104,35 @@ requires an `Authorization: Bearer <token>` header.
 - `archives` — `GET /` (admin/boss)
 - `admin` — `POST /monthly-reset` (admin)
 
-## Deployment notes
+## Deployment (frontend on Vercel, backend on Render)
 
-- Run the API with `npm run start` behind a process manager; set the env vars in
-  your host instead of `server/.env`.
-- Build the frontend with `npm run build` and serve `dist/`. Set `VITE_API_URL`
-  (see `.env.example`) to the API's public URL at build time if it's on another origin.
+The backend and frontend deploy separately. The frontend talks to the backend via
+`VITE_API_URL` (baked in at build time).
+
+### Backend → Render (or Railway/Fly)
+
+1. New **Web Service** from the repo. **Root Directory:** `Stock_Advisory_CRM-main`.
+2. Build command: `npm install`  ·  Start command: `npm run start`.
+3. Environment variables (do **not** rely on `server/.env` — it's gitignored):
+   - `MONGODB_URI` — your Atlas string (URL-encode `@` in the password as `%40`).
+   - `JWT_SECRET` — a long random string.
+   - `CLIENT_ORIGIN` — your Vercel URL, e.g. `https://your-app.vercel.app` (optional but recommended; locks CORS).
+   - `PORT` is provided by the host automatically.
+4. In **MongoDB Atlas → Network Access**, allow the host to connect: add `0.0.0.0/0`
+   (Render uses dynamic egress IPs), or Render's static IPs if you enable them.
+5. After first deploy, seed once from the host shell: `npm run seed:prod`.
+6. Health check path: `/api/health`.
+
+### Frontend → Vercel
+
+1. Import the repo. **Root Directory:** `Stock_Advisory_CRM-main` (framework auto-detects as Vite).
+2. Build command `npm run build`, output `dist` (defaults).
+3. Environment variable:
+   - `VITE_API_URL = https://<your-render-service>.onrender.com/api`
+4. Deploy. (If you set `VITE_API_URL` after the first build, redeploy — Vite inlines it at build time.)
+
+### Scripts for production
+
+- `npm run start` — run the API reading env vars from the host (no `.env` file).
+- `npm run seed:prod` — seed defaults using host env vars.
+- `npm run start:local` / `npm run seed` — local equivalents that read `server/.env`.
